@@ -60,6 +60,36 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+  void _editNote(int index, String currentText){
+    TextEditingController _controller = TextEditingController(text: currentText);
+
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Редактирование заметки'),
+        content: TextField(
+          controller: _controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Введите заметку здесь'),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _notes[index] = _controller.text;
+                Navigator.pop(context);
+              });
+            },
+            child: const Text('Сохранить'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Отмена'),
+            child: const Text('Отмена'),
+          ),
+        ],
+      ),
+    );
+  }
   void _removeNote(int index) {
     setState((){
       _notes.removeAt(index);
@@ -77,10 +107,19 @@ class _MyHomePageState extends State<MyHomePage> {
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(_notes[index]),
-            trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () => _removeNote(index),
-            ),
+            trailing: Wrap(
+              spacing: 12,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () => _editNote(index, _notes[index]),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => _removeNote(index),
+                ),
+              ],
+            )
           );
         },
       ),
