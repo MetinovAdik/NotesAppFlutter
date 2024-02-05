@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -26,7 +26,7 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
 
-
+  
   final String title;
 
   @override
@@ -35,7 +35,23 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<String> _notes = [];
+  @override
+  void initState() {
+    super.initState();
+    _loadNotes();
+  }
 
+  Future<void> _loadNotes() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notes = prefs.getStringList('notes') ?? [];
+    });
+  }
+
+  Future<void> _saveNotes() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('notes', _notes);
+  }
   void _addNote() {
     showDialog<String>(
       context: context,
@@ -49,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
               _notes.add(value);
               Navigator.pop(context);
             });
+            _saveNotes();
           },
         ),
         actions: <Widget>[
@@ -79,6 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 _notes[index] = _controller.text;
                 Navigator.pop(context);
               });
+              _saveNotes();
             },
             child: const Text('Сохранить'),
           ),
@@ -94,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState((){
       _notes.removeAt(index);
     });
+    _saveNotes();
   }
 
   @override
